@@ -38,7 +38,9 @@ Rules:
 - **Keep improving.** Before a card is split or started, check its id in the git log of the integration branch and
   set a merged card to `Done` first (stale Status lines make a split repeat finished work). After a merge, merge the
   integration branch into an open card branch only when `git merge-tree` reports a conflict or the merge touched its
-  files: each update starts a CI run. Chain split siblings only where they edit the same file. Builders run the
+  code files: each update starts a CI run. When the only red jobs are a known, carded failure of the integration
+  branch, a verifier may start while they re-run; the merge still waits for green. A builder edits the requirements
+  when its card asks for it. Agents sharing a machine run only the tests they touched, with few workers. Chain split siblings only where they edit the same file. Builders run the
   end-to-end specs of the screens they change against their own throwaway database before pushing. Write a cost line
   per card (tool calls and tokens of each builder and verifier run) in `handoff.md`, compare it with the last wave,
   and record each change to the method as a decision; with the owner's approval the method changes between waves.

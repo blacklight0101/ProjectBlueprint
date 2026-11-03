@@ -398,6 +398,10 @@ requests under a usage throttle):
   side by side, and builders without a test database leaving end-to-end failures to CI. Fixes: check the git log
   before splitting (two merged cards still read Todo and were split again), chain siblings only on a shared file,
   give builders a throwaway database recipe, and update a branch only on a conflict or overlap.
+  Measured on the weekly window: 7 cards for 6 points against 4 cards for 9. Two more lessons: an agent file that
+  forbade spec edits while the card asked for them cost two FAIL rounds, and a background code-graph update left
+  running on a workspace root full of worktrees held about 20 GB until builds ran out of memory, so check for such
+  processes when hooks or tests start failing with allocation errors.
 - **Green CI before a verifier.** On the Rosetta Phase 8 build three of four verifier rounds failed only on
   end-to-end specs the builders never ran (assertions on the old wording, `path:line` anchors in verification
   matrices moved by one import line). Builders now search the whole end-to-end suite for what they changed and run
