@@ -125,7 +125,8 @@ after the Claude model aliases the Agent tool accepts; when models change, keep 
   for scripted difficulty 1-2 cards with exact commands, never as verifiers, and re-run every check yourself.
 - **Verifier band**: `verifier` (sonnet) for difficulty 1-8 and `verifier-opus` for 9-10; the verifier moves up with
   the builder when a card is promoted. A model never verifies its own work at a lower band.
-- **Retry ladder**: FAIL 1 goes back to the same builder (its context is intact); FAIL 2 goes to a fresh builder one
+- **Retry ladder**: FAIL 1 goes to a fresh builder of the same band with the card, the verdict and the branch (a
+  resumed builder re-reads its whole history on every call); FAIL 2 goes to a fresh builder one
   band up (never down); FAIL 3 runs `builder-fable` only after the owner approves it in chat; a later FAIL escalates
   the card to the owner and blocks its chain. A follow-up of a card that failed twice is rated one band above it.
 - **The mix depends on the plan, not on a target.** With fable available as a native band, a line-of-business plan
@@ -391,6 +392,12 @@ requests under a usage throttle):
   orchestrator session about a quarter of the total. Fixes: a fresh orchestrator session per wave, fresh builders
   for fix rounds, S cards, a tool-call budget, end-to-end tests as one background command, and an optional graph
   (it helped once in about eight queries on a code-only graph).
+- **S cards, measured (Rosetta Phase 8 wave 2).** After splitting every card larger than S, builders used 35-55 tool
+  calls and about 120-135k tokens each (wave 1: 170-250 calls), and a round-1 verifier about 13 calls. The costs
+  moved elsewhere: more pull requests, CI runs and status lines per change, long chains of siblings that cannot run
+  side by side, and builders without a test database leaving end-to-end failures to CI. Fixes: check the git log
+  before splitting (two merged cards still read Todo and were split again), chain siblings only on a shared file,
+  give builders a throwaway database recipe, and update a branch only on a conflict or overlap.
 - **Green CI before a verifier.** On the Rosetta Phase 8 build three of four verifier rounds failed only on
   end-to-end specs the builders never ran (assertions on the old wording, `path:line` anchors in verification
   matrices moved by one import line). Builders now search the whole end-to-end suite for what they changed and run

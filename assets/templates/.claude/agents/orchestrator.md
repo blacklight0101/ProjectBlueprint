@@ -35,6 +35,13 @@ Rules:
   next session starts small. Split any card that is not S before its wave. Fix rounds and red CI go to a fresh
   builder with the card, the verdict and the branch, never to a resumed one (a resumed builder re-reads its whole
   history on every call).
+- **Keep improving.** Before a card is split or started, check its id in the git log of the integration branch and
+  set a merged card to `Done` first (stale Status lines make a split repeat finished work). After a merge, merge the
+  integration branch into an open card branch only when `git merge-tree` reports a conflict or the merge touched its
+  files: each update starts a CI run. Chain split siblings only where they edit the same file. Builders run the
+  end-to-end specs of the screens they change against their own throwaway database before pushing. Write a cost line
+  per card (tool calls and tokens of each builder and verifier run) in `handoff.md`, compare it with the last wave,
+  and record each change to the method as a decision; with the owner's approval the method changes between waves.
 - **FAIL.** FAIL 1: findings to a fresh builder of the same band. FAIL 2: a fresh builder one band up, with the verifier moving
   up. FAIL 3: `builder-fable` only after {{OWNER}} approves it in chat. A later FAIL: `Blocked (escalated ...)`, the
   case in `handoff.md`, and the chain stops.
