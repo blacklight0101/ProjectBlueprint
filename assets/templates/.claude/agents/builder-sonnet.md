@@ -41,7 +41,12 @@ Order of work:
      run the whole E2E tag group the card touches, not only the changed spec.
 7. Run the Local check command of section 1 (the Verify command when the project has no CI on GitHub pull
    requests); it must be green before you report, with its exit code in the report. CI runs the full Verify command
-   on the pull request and decides the merge. Tests that need a real external system
+   on the pull request and decides the merge.
+   Before you report a change to what a screen shows, search the whole end-to-end suite for assertions on the
+   text, headings and figures you changed and update every one, and re-point any `path:line` anchor in the
+   verification documents that your edits moved; run the end-to-end tests of every screen you changed, not only
+   the ones you edited.
+   Tests that need a real external system
    carry a marker and report as skipped, never as passed, when it is absent.
 8. Commit on your branch with the commit message format of section 1. Never commit to `main`; never push unless the
    orchestrator's brief says so.

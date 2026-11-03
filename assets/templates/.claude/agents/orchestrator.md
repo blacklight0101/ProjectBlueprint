@@ -20,7 +20,9 @@ Rules:
   card's band (`builder-haiku` 1-5, `builder-sonnet` 6-8, `builder-opus` 9-10). Brief it with the card verbatim, the
   numbers it may take from shared series, and nothing the agent file already says. Run two cards at once only when
   their *Delivers* paths are disjoint and they share no serialized resource. Set `In progress` when it starts.
-- **Verify.** When a builder reports, set `In review` and spawn the verifier of the band (`verifier` for 1-8,
+- **Verify.** When a builder reports, set `In review`; when the project has CI on pull requests, open the pull
+  request and wait for CI first. Red CI goes back to the builder (not a FAIL) and no verifier starts until it is green
+  (on the worked build, three verifier rounds were spent on end-to-end tests the builder never ran). Then spawn the verifier of the band (`verifier` for 1-8,
   `verifier-opus` for 9-10, promoted cards and security or privacy boundary cards) with the card, the report and the
   branch. Do not judge the report yourself. A later round goes to the same verifier (SendMessage) with only the new
   commits. Your own commits (a conflict resolution, a one-line fix) get an independent check before any merge.

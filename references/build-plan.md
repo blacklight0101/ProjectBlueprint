@@ -383,6 +383,11 @@ requests under a usage throttle):
   we test, then merge"), build the cards on one feature branch, start a preview from it, and merge to `main` only
   after the owner says so. Some owners also set a phase rule "never commit or push unless I ask": keep `main` local
   until asked, then push everything in one go with `handoff.md` updated.
+- **Green CI before a verifier.** On the Rosetta Phase 8 build three of four verifier rounds failed only on
+  end-to-end specs the builders never ran (assertions on the old wording, `path:line` anchors in verification
+  matrices moved by one import line). Builders now search the whole end-to-end suite for what they changed and run
+  the tests of every screen they touched; the orchestrator waits for green CI before spawning a verifier and sends
+  red CI back to the builder without counting a FAIL.
 - **A rule the agents never see is not followed.** The knowledge-graph step was added to the skill's templates but
   not to the agent files of the project already being built; across 55 builder and 41 verifier runs no agent queried
   the graph, and about half of every builder's tool calls were wide searches. When the skill gains an agent rule,
