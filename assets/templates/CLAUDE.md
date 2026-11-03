@@ -93,6 +93,20 @@ With no preset, write the stack rules decided in the ADRs: architecture and depe
 error handling, test levels and the command that must pass before reporting done, packages that need an ADR. -->
 <!-- STACK-RULES:END -->
 
+## Knowledge graph (graphify)
+
+<!-- FILL: keep this section when the owner kept the default of bank 8.13 (a graphify knowledge graph); otherwise
+delete it. The graph lines in AGENTS.md and `.claude/agents/` apply only when this section exists. -->
+
+- The graph lives in `graphify-out/` at the root of the main checkout and is never committed (`.gitignore`).
+- Before searching wide for code or for where a fact is written, query the graph: `graphify query "<question>"`,
+  `graphify path "A" "B"`, `graphify explain "X"`, or read `graphify-out/GRAPH_REPORT.md`; then open the files it
+  names (`graphify affected "X"` finds what a change can break). From a worktree, pass
+  `--graph <main checkout>/graphify-out/graph.json`. The graph finds things; the sources of truth above still decide
+  behaviour. When it finds nothing useful, search as usual.
+- After code changes, `graphify update .` refreshes the code part (no model calls). Changes to many documents need
+  `/graphify . --update`, which uses model tokens; ask the product owner first.
+
 ## Read-only paths
 
 <!-- FILL: Every path outside this repository that may be read and must never be edited, with the reason (for example

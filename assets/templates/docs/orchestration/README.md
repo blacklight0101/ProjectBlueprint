@@ -19,10 +19,11 @@ Every rule below refers to these settings by name, so a stack change is made her
 
 | Setting | Value |
 |---|---|
-| Install | `dotnet restore` <!-- FILL: e.g. `npm ci --ignore-scripts` for agents (worktrees share one .git/hooks, so agents never run install scripts) --> |
+| Install | `dotnet restore` <!-- FILL: e.g. `npm ci --ignore-scripts` for agents (worktrees share one .git/hooks, so agents never run install scripts); when worktrees link their dependency folder (`node_modules`) to the main checkout, nobody installs through the link --> |
 | Build command | `dotnet build` (zero errors, zero new warnings) <!-- FILL: e.g. `npm run build`, `./gradlew assembleDebug`, Unity batch-mode build --> |
 | Test command | `dotnet test` <!-- FILL: e.g. `npm test`, `./gradlew test`, Unity `-runTests` --> |
 | Verify command | one command that chains every gate (build, type check, lint with zero warnings, format, architecture rules, tests with coverage); CI runs the same <!-- FILL: e.g. `npm run verify`, `./verify.ps1` --> |
+| Local check command | with CI on GitHub pull requests: the static gates of the Verify command plus only the tests related to the branch's changes; builders and verifiers run it before reporting, and CI's full Verify command on the pull request decides the merge. Without CI on GitHub: none, agents run the Verify command <!-- FILL: e.g. `npm run verify:local` = type check, lint, format, architecture, dead code and `vitest run --changed origin/develop`; `dotnet build` plus `dotnet test --filter` on the changed projects --> |
 | Test-first | on: failing test, then code, then refactor; the `test:` commit comes before the commit that makes it pass <!-- FILL: keep "on" unless the owner decided otherwise (record the DEC-nn) --> |
 | Test levels | Unit (no I/O), Integration (exactly one real boundary), E2E (a user journey through the running app) |
 | Level marker | `[Trait("Level", "Unit" \| "Integration" \| "E2E")]` on every test <!-- FILL: e.g. the test folder (`tests/unit`, `tests/integration`, `tests/e2e`), NUnit `[Category]`, pytest markers --> |
@@ -117,8 +118,10 @@ pull request only when all of these hold, re-checked right before the merge:
 
 1. CI is green on the head commit.
 2. The verifier's PASS is posted on the pull request.
-3. The branch is up to date with `main`. A pushed branch is updated by merging `main` into it, never by a rebase and a
-   force-push; the verifier re-confirms when that merge touched the card's files.
+3. The branch merges cleanly with `main` (the host reports it mergeable). It is brought up to date first only when
+   the branch ruleset requires it; otherwise the merge happens at once, so merges do not queue behind a new CI run
+   each. A pushed branch is updated by merging `main` into it, never by a rebase and a force-push; the verifier
+   re-confirms when that merge touched the card's files.
 4. The pull request changes nothing under `docs/spec`, `docs/adr`, `docs/rfc`, `docs/decision-log.md` or `CLAUDE.md`.
    One that does is labelled `needs-owner` and only {{OWNER}} merges it, unless a dated DEC delegates it.
 5. `gh pr merge --squash --delete-branch` exits 0. The tool may ask {{OWNER}} once per session before the first merge;

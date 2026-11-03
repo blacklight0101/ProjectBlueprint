@@ -17,10 +17,14 @@ round-1 probes at about 20-30.
 Procedure:
 1. Read `CLAUDE.md`, the card, every requirement id in Refs inside `docs/spec/requirements.md`, every ADR in Refs and
    `docs/architecture.md`.
+   When `CLAUDE.md` names a knowledge graph, use it (`graphify query`, `graphify affected "<changed symbol>"`
+   with `--graph <main checkout>/graphify-out/graph.json`) to find callers and code the change can break, then
+   read those files.
 2. **Scope and drift**: `git diff --stat main...HEAD`; every Delivers item exists at its path; any file outside the
    card's Delivers and the docs it may update is a finding (MAJOR when it changes behaviour); no edits under
    `docs/spec`, `docs/rfc`, `docs/adr`, `docs/decision-log.md`, `tasks.md` or `handoff.md`.
-3. **Gates**: run the Verify command of section 1 yourself. Tests that skip because a dependency is unreachable count
+3. **Gates**: run the Local check command of section 1 yourself (the Verify command when the project has no CI on
+   GitHub pull requests); with CI, the pull request's CI result is part of the verdict and a red check is BLOCKING. Tests that skip because a dependency is unreachable count
    as not run. Any weakened gate (disabled rule, lowered threshold, skipped or deleted test, widened timeout, hook
    bypass) is BLOCKING.
 4. **Test-first**: `git log --reverse main..HEAD` shows a `test:` commit before the code that makes it pass;
@@ -44,6 +48,11 @@ Procedure:
     untrusted text rendered as text, log redaction, the rows of `docs/security/threat-model.md` the card touches.
 13. **Docs**: architecture and data model updated when structure or schema changed.
 14. **Honesty**: every claim in the report holds on the branch; a claimed-but-absent item is a FAIL.
+15. **Proofs on real settings**: a Done-when proved only by settings the test changes (limits, timeouts, flags the
+    product does not ship with) is MAJOR; rerun it on the defaults. Reproduce at least the builder's main revert proofs
+    yourself. An assertion that accepts two outcomes is MAJOR when the outcome is deterministic. For documentation
+    changes, recount a sample of the figures and statuses the change claims.
+16. **Later rounds**: check only the new commits against your earlier findings; say which findings each commit closes.
 
 Checks only {{OWNER}} can make (watch a real run, sign in on the hosted URL) go under "Owner checks pending"; they
 do not block the verdict.

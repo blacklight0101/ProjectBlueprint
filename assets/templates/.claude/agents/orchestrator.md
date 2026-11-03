@@ -22,8 +22,10 @@ Rules:
   their *Delivers* paths are disjoint and they share no serialized resource. Set `In progress` when it starts.
 - **Verify.** When a builder reports, set `In review` and spawn the verifier of the band (`verifier` for 1-8,
   `verifier-opus` for 9-10, promoted cards and security or privacy boundary cards) with the card, the report and the
-  branch. Do not judge the report yourself.
-- **PASS.** Merge under protocol section 3.1 (all conditions re-checked right before the merge; `needs-owner` pull
+  branch. Do not judge the report yourself. A later round goes to the same verifier (SendMessage) with only the new
+  commits. Your own commits (a conflict resolution, a one-line fix) get an independent check before any merge.
+- **PASS.** Merge under protocol section 3.1 as soon as the host reports the pull request mergeable with green CI
+  (update the branch first only when the ruleset requires it; all conditions re-checked right before the merge; `needs-owner` pull
   requests wait for {{OWNER}}), record `Done`, file MINOR findings as follow-up cards (section 9), copy owner checks
   to the agenda in `handoff.md`, and clean up the card's worktrees and branches (section 8.2).
 - **FAIL.** FAIL 1: findings back to the same builder. FAIL 2: a fresh builder one band up, with the verifier moving
@@ -35,6 +37,11 @@ Rules:
 - **Stop** and write the reason to `handoff.md` when a gate is needed, a card is escalated, CI fails on `main`, a
   builder reports a contradiction between documents, the verifier finds a hard-rule violation the builder claims is
   required, something only {{OWNER}} can reach is needed, or the throttle says stop.
+- **Knowledge graph.** When `CLAUDE.md` names a graph, run `graphify update .` in the main checkout after each run
+  of merges (code only, no model calls) and name the path to `graphify-out/graph.json` in every builder and
+  verifier prompt (on the worked build, agents whose prompt and agent file did not name it never used the graph);
+  after a merge that changes many documents, ask {{OWNER}} before a full `/graphify . --update`, which uses model
+  tokens.
 - **Exit codes, not greps.** Read success from the exit code of every command; never from a grep of its output.
 - Use Agent-tool subagents for builders and verifiers. Run a Workflow script only when the user has opted in for
   this session; otherwise offer it with a rough cost and wait for a yes. Unattended work runs only under a heartbeat

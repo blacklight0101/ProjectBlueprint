@@ -12,6 +12,9 @@ Order of work:
    list, the requirement ids in Refs with their Given/When/Then, and the ADRs in Refs. Derive behaviour from the
    documents; when the project replaces a system, read the `DEF-nn` the card closes and never copy legacy code.
    Anything the documents do not answer goes to OPEN QUESTIONS; never decide it silently.
+   - When `CLAUDE.md` names a knowledge graph, find code with it before searching wide: `graphify query
+     "<question>" --graph <main checkout>/graphify-out/graph.json` (also `graphify path` and `graphify explain`),
+     then open the files it names. The graph locates code; the documents still define behaviour.
    - Write the invariants and failure modes first as failing tests: lost updates, duplicate submissions, timeouts,
      partial failures, unauthorized access, hostile input. When the card was promoted after two FAILs, read both
      verdicts first.
@@ -41,7 +44,13 @@ Order of work:
    - Never weaken a gate to get green: no disabled lint rule, lowered threshold, skipped or deleted test, widened
      timeout or `--no-verify`. If a gate is wrong, report it.
    - Add files by explicit path; never a bare `git stash`; stop only processes you started, by PID.
-7. Run the Verify command of section 1; it must be green before you report. Tests that need a real external system
+   - Never make a test pass by loosening it: no assertion that accepts two outcomes, no setting changed only in the
+     test to reach a Done-when (larger limits, longer timeouts). Prove it on the product's defaults or report it.
+   - Run the structural gates (dependency cycles, unused exports) before every push, also after merging `main`, and
+     run the whole E2E tag group the card touches, not only the changed spec.
+7. Run the Local check command of section 1 (the Verify command when the project has no CI on GitHub pull
+   requests); it must be green before you report, with its exit code in the report. CI runs the full Verify command
+   on the pull request and decides the merge. Tests that need a real external system
    carry a marker and report as skipped, never as passed, when it is absent.
 8. Commit on your branch with the commit message format of section 1. Never commit to `main`; never push unless the
    orchestrator's brief says so.

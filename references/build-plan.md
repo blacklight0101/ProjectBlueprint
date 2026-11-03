@@ -274,6 +274,10 @@ The build starts in a later session, after G-01 (or a provisional G-01) is recor
 5. MINOR findings and later defects become follow-up cards in the owning phase (a failing reproducing test first).
 6. It stops at gates, escalations, contradictions between documents, hard-rule conflicts and unreachable
    environments, and ends every session with `main` clean and `handoff.md` current.
+7. When the project keeps a knowledge graph (bank 8.13), it runs `graphify update .` in the main checkout after each
+   run of merges, so builders and verifiers query a graph that matches `main`; briefs name the graph path
+   (`<main checkout>/graphify-out/graph.json`), since worktrees have no `graphify-out/` of their own.
+   For scale: on the Rosetta build (about 4,400 files) one code refresh took about four minutes, with no model calls.
 
 ### 10.1 Merge rules
 
@@ -289,7 +293,10 @@ merges only when all of these hold, re-checked right before the merge:
 
 1. CI is green on the head commit.
 2. The verifier's PASS is posted on the pull request.
-3. The branch is up to date with `main`. A pushed branch is updated by merging `main` into it, never by a rebase and a
+3. The branch merges cleanly with `main` (the host reports it mergeable, for example GitHub's `CLEAN`). Require an
+   up-to-date branch only when the branch ruleset does (read the ruleset; never assume). Updating every branch and
+   waiting for CI again before each merge makes the merges serial: parallel runs make each other stale and the queue
+   grows by a CI run per card. A pushed branch is updated by merging `main` into it, never by a rebase and a
    force-push; the verifier re-confirms when the merge touched the card's files.
 4. The pull request changes nothing in the spec, ADRs, RFCs, the decision log or `CLAUDE.md`. One that does gets the
    label `needs-owner`; only the owner merges it (or the owner delegates it for a session, recorded as a dated DEC).
@@ -340,8 +347,13 @@ requests under a usage throttle):
   DLLs: MSB3021/MSB3026 copy errors show as "N Error(s)"); build in another configuration (`-c Release`) or stop the
   preview, and read the exit code.
 - **PR CI is the authority.** A full local verify run on every card was retired on the Rosetta build (CPU-bound,
-  load time-outs); builders run the related tests and CI runs the whole gate. When CI fails on `main`, stop and fix
-  that first. A flaky test may hide a real bug (one intermittent failure was a real upload defect); card it.
+  load time-outs: with four builders and their verifiers on one machine, overlapping full runs took 20-40 minutes
+  each); builders run the related tests and CI runs the whole gate. When the project has CI on GitHub pull
+  requests, fill the Local check command of the protocol (static gates plus the tests related to the branch, for
+  example `vitest run --changed origin/develop`), point builders and verifiers at it, and make a green CI run part
+  of the merge rule; without CI, they keep the full Verify command. A change to the toolchain or the test setup
+  still gets a full local run. When CI fails on `main`, stop and fix that first. A flaky test may hide a real bug
+  (one intermittent failure was a real upload defect); card it.
 - **Verifier minors that are pure wording** (a resource string, a doc sentence) may be fixed by the orchestrator on
   the branch before merge, with the matching test updated; everything else becomes a follow-up card.
 - **The owner's hands-on review changes the product.** On the worked build it removed a rule (an office minimum),
@@ -371,6 +383,11 @@ requests under a usage throttle):
   we test, then merge"), build the cards on one feature branch, start a preview from it, and merge to `main` only
   after the owner says so. Some owners also set a phase rule "never commit or push unless I ask": keep `main` local
   until asked, then push everything in one go with `handoff.md` updated.
+- **A rule the agents never see is not followed.** The knowledge-graph step was added to the skill's templates but
+  not to the agent files of the project already being built; across 55 builder and 41 verifier runs no agent queried
+  the graph, and about half of every builder's tool calls were wide searches. When the skill gains an agent rule,
+  apply it to the projects built from it; when a project changes how its agents work, make the same change in the
+  skill (section 6 of SKILL.md).
 - **Agent definitions load only from the session's project folder.** When the session's working directory is a
   parent folder, `.claude/agents/builder-*.md` are not available as agent types; launch a general-purpose subagent
   with the chosen model and tell it to read and follow the builder or verifier file.
@@ -379,6 +396,11 @@ requests under a usage throttle):
   processes by image name (one `taskkill /IM node.exe` killed every agent's work), only by the PID you started.
   Agents install with `--ignore-scripts` (or the stack's equivalent), because worktrees share one `.git/hooks`, and
   CI re-runs every hook check as the backstop.
+- **Shared dependency folders.** Worktrees that link `node_modules` (or another dependency folder) to the main
+  checkout save minutes per agent, but one `npm ci` or `npm install` through the link empties it for every agent;
+  every later lint or test fails with a missing-module error that looks like a code defect. The brief says never
+  install through the link; repair with an install in the main checkout that adds without deleting (`npm install
+  --ignore-scripts`), restore the lock file, and re-run every result from the broken window.
 - **One writer per seat.** Give every agent full paths and its own log folder (agents overwrote a shared
   `/tmp/verify.log`); when a second session or account may take over, a lease file stops two orchestrators driving
   the same build.
@@ -394,6 +416,41 @@ requests under a usage throttle):
 - **Show the work at the end of a phase.** For a stakeholder deck, capture real screens with a small Playwright
   script on the installed browser (`Channel = "msedge"`), blur the focused element before each shot, and use the
   app's own impersonation or test mode to capture other roles' screens; say so to the owner, since it is logged.
+- **Shared traceability rows conflict.** A requirements or matrix row that lists many cards ("P8-01, P8-02, P8-07")
+  conflicted the next pull request on almost every parallel merge. Keep per-card traceability out of shared rows (a
+  per-card file, or a table generated from the cards).
+- **Line-number evidence moves.** A verification matrix that cites `path:line` breaks when a test file gains lines (a
+  four-line insert failed CI); run the documentation tests after any test-file edit, and prefer citing a test by name.
+- **Run the structural gates before every push**, also after merging `main`: dependency cycles and unused exports
+  failed the gates job on two cards whose tests were green.
+- **Run the whole tag group, not only the changed spec.** A builder's local E2E passed while two specs of the same
+  tag (`@caps`) failed in CI; they had caught a real regression. The brief names the tag groups a card must run.
+- **Verifiers check where a fix lives.** A "proof" came from settings changed only in the test (larger output limits),
+  not from the product defaults; with the defaults the behaviour did not happen. Verifiers reproduce revert proofs
+  themselves, reject an assertion that accepts two outcomes when the outcome is deterministic, and spot-check the
+  counts and statuses a documentation pull request claims (a docs card left a dozen merged cards marked Todo).
+- **Re-rounds go to the same verifier.** Send the delta to the verifier that wrote the FAIL (SendMessage); it checks
+  only the new commits against its own findings, which is faster and cheaper than a fresh verifier.
+- **Never self-approve the orchestrator's own commits.** A conflict resolution or a one-line fix by the orchestrator
+  still gets an independent check (a haiku-band check is enough). Checkers misread merge commits; confirm with
+  `git show --cc` before disputing them.
+- **Heuristics are safe in the doubtful case and never silent.** A detector of modules and deployment files took four
+  rounds: substring matches caught ordinary folders, one-word test projects slipped through and charts outside a named
+  folder vanished. The rule that held: match exact names, and list everything left unclassified with its reason.
+- **A numeric Done-when needs a fixture where it holds on default settings.** "Pauses at 120 % of real spend" held
+  only on a small recorded step, because the headroom covered a large run's last calls. Ask the owner before
+  substituting another figure.
+- **Flaky tests share state.** Parallel tests rebuilding one seeded record collided; serial mode or one account per
+  test fixed it. Rerun a flake proof (for example 20 reruns of a shard) on a quiet machine: other agents, a local
+  model or a pre-push hook cause timeouts and socket exhaustion that look like flakes.
+- **Finished agents can leave hung shells.** List the processes the build started and stop only those, by PID.
+- **Evaluation projects inherit server defaults at creation.** All three evaluation projects ran at parallelism 1
+  because the server's default reader was local when they were made; check the settings before comparing timings. A
+  stop, change-a-setting, resume pass through the UI is a useful evaluation step. A read-only live view (run table,
+  cost ledger, the run's event log) shows agents in flight while the evaluation runs.
+- **Agent transcripts fill the system drive.** Each builder and verifier writes its full transcript under
+  `~/.claude/projects`; on a long build move that folder to a data drive behind a junction or symlink (with Claude
+  closed) and clean temp files.
 - **Session end**: clean up as in 10.3; update `handoff.md` (status line, waiting-for-owner list, resume point) in the
   same push, and grep it for claims that are no longer true (an open pull request that merged, a card still listed as
   left); it goes stale fast during a build.

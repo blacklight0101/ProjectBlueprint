@@ -9,6 +9,8 @@ CLAUDE.md wins and this file is corrected. Keep this file under about 60 lines.
 2. [CLAUDE.md](CLAUDE.md) - sources of truth, hard rules, commit policy.
 3. [docs/orchestration/README.md](docs/orchestration/README.md) - how cards are built, verified and merged.
 4. The card you were given in [docs/orchestration/tasks.md](docs/orchestration/tasks.md) and its Reads list.
+5. When CLAUDE.md has a "Knowledge graph" section, query the graph first to find code or where a fact is written
+   (`graphify query "<question>"`, graph in `graphify-out/` of the main checkout).
 
 ## Commands
 

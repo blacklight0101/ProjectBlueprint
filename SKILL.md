@@ -42,6 +42,7 @@ relative to it.
     orchestration/README.md  build protocol: settings, bands, merge rules, usage throttle, verifier, gates G-nn
     orchestration/tasks.md   task cards P<phase>-nn with the canonical Totals table and the ownership table
   .claude/agents/            orchestrator, builder-haiku, builder-sonnet, builder-opus, builder-fable, verifier, verifier-opus
+  graphify-out/              knowledge graph of documents and code (graphify, bank 8.13, on by default); git-ignored
 ```
 
 Worked example (read-only; read it to see what "filled" looks like, never copy its content): https://github.com/blacklight0101/Rosetta
@@ -189,7 +190,8 @@ The slug defaults to the kebab-case of `--name` (pass `--slug` to override). The
 files (exit 1) unless `--force`; exit 2 is a usage problem. It prints the created files, the FILL comments left per
 file and every line that still mentions a skipped part: edit or remove those lines as `references/docs-set.md`
 section 8 lists. If the user chose local git (bank 0.9) and the folder is not a repository, run `git init` there; do
-not commit until asked. Then write the first `DEC-nn` rows (from step 4) and the `Q-nn` rows (from the open
+not commit until asked. Unless the owner declined the knowledge graph (bank 8.13), add `graphify-out/` to
+`.gitignore` (create it if missing). Then write the first `DEC-nn` rows (from step 4) and the `Q-nn` rows (from the open
 questions) straight away.
 
 ### Step 6 - Fill the documents in order
@@ -242,12 +244,17 @@ example the flows PDF before its first generation) are expected; say so. Then ru
 loop (`references/review-loop.md` steps 1-2: three slice reviewers as parallel Agent subagents, spot-verify the high
 findings yourself), fix what is mechanical, and turn every real hole into a question with a default.
 
+Then, unless the owner declined it (bank 8.13), build the knowledge graph once the documents are clean: run the
+`graphify` skill on the repository root (`/graphify .`; it reads the documents with model calls, so say so in one
+line before starting). Check `graphify-out/GRAPH_REPORT.md` exists and `graphify-out/` is ignored by git. Later
+sessions refresh the code part with `graphify update .`, which needs no model calls.
+
 ### Step 10 - Summary to the user (stop)
 
 In the user's language: what exists (link the files, do not restate counts), the decisions taken (DEC range), the
-open questions with their defaults as a numbered table, the gates and who holds them, and the resume point written
-in `handoff.md`. Offer the flows PDF or page (section 8). Offer to commit on a `docs/<topic>` branch; commit only on
-a yes.
+open questions with their defaults as a numbered table, the gates and who holds them, the knowledge graph (built or
+declined), and the resume point written in `handoff.md`. Offer the flows PDF or page (section 8). Offer to commit
+on a `docs/<topic>` branch; commit only on a yes.
 
 ### Step 11 - Persist memory
 
@@ -260,6 +267,12 @@ decision, questions, requirements (new range or free ten), ADR, RFC subsection "
 documents, roadmap, build plan, flows, CLAUDE.md, decision-log "Where applied". Ask the new questions first
 (`references/interview.md` formats). For one to five decisions over a few files, use the small-change pattern of
 `references/review-loop.md` (one editor, one adversarial verifier, one fix); for more, use the full loop below.
+
+**Agent and protocol changes travel both ways.** When a project built from this skill changes how its agents
+work (`.claude/agents/`, `AGENTS.md`, the agent rules of `CLAUDE.md`, `docs/orchestration/README.md`), make the same
+change in this skill's templates and references and in the published copy of the skill (scrub it first: no
+employer or private project names, no local paths). When this skill gains such a change, offer to apply it to the
+projects built from it; a rule only in the templates never reaches an agent.
 
 ## 7. Review and Apply answers
 
