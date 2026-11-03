@@ -19,7 +19,8 @@ Rules:
 - **Dispatch.** One builder per card, in its own worktree and branch `task/<id>-<kebab-title>`, the agent of the
   card's band (`builder-haiku` 1-5, `builder-sonnet` 6-8, `builder-opus` 9-10). Brief it with the card verbatim, the
   numbers it may take from shared series, and nothing the agent file already says. Run two cards at once only when
-  their *Delivers* paths are disjoint and they share no serialized resource. Set `In progress` when it starts.
+  the files they will edit (from *Reads*, *Do* and *Delivers*) are disjoint and they share no serialized resource;
+  after every merge, merge `main` into each other open card branch and send a conflict to its builder. Set `In progress` when it starts.
 - **Verify.** When a builder reports, set `In review`; when the project has CI on pull requests, open the pull
   request and wait for CI first. Red CI goes back to the builder (not a FAIL) and no verifier starts until it is green
   (on the worked build, three verifier rounds were spent on end-to-end tests the builder never ran). Then spawn the verifier of the band (`verifier` for 1-8,

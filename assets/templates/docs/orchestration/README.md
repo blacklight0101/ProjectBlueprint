@@ -121,7 +121,10 @@ pull request only when all of these hold, re-checked right before the merge:
 3. The branch merges cleanly with `main` (the host reports it mergeable). It is brought up to date first only when
    the branch ruleset requires it; otherwise the merge happens at once, so merges do not queue behind a new CI run
    each. A pushed branch is updated by merging `main` into it, never by a rebase and a force-push; the verifier
-   re-confirms when that merge touched the card's files.
+   re-confirms when that merge touched the card's files. After every merge, wait for the CI run on `main`: a red
+   `main` stops every merge until it is fixed, because it is the check for two pull requests that were green apart
+   and break together. Then merge `main` into every other open card branch at once and send a conflict to that
+   card's builder while it still has its context.
 4. The pull request changes nothing under `docs/spec`, `docs/adr`, `docs/rfc`, `docs/decision-log.md` or `CLAUDE.md`.
    One that does is labelled `needs-owner` and only {{OWNER}} merges it, unless a dated DEC delegates it.
 5. `gh pr merge --squash --delete-branch` exits 0. The tool may ask {{OWNER}} once per session before the first merge;
@@ -194,8 +197,10 @@ merge. When {{OWNER}} reports one done, it is recorded as "reported done by the 
 
 - Phases run in order (P1, P2, ...), but cards inside a phase run in parallel whenever their dependencies allow. A
   phase held by a gate starts only when {{OWNER}} opens it.
-- Two cards run at the same time only when they touch disjoint files. Before dispatching, compare the *Delivers*
-  paths of the candidate cards; any overlap means they run one after the other.
+- Two cards run at the same time only when they touch disjoint files. Before dispatching, compare the files the
+  candidate cards will edit, judged from their *Reads*, *Do* and *Delivers* (a page component the card changes but
+  does not list still counts); any overlap means they run one after the other. After each builder's first push,
+  compare `git diff --name-only main...` of the open branches and serialize any overlap found then.
 - Never run two cards that touch the same serialized resource (section 1) at the same time. Sequence numbers are
   fixed per card in `docs/data-model.md` or allocated by the orchestrator in the brief.
 - One card has one verifier at a time. Every agent gets full paths and its own log folder.

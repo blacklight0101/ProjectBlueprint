@@ -388,6 +388,13 @@ requests under a usage throttle):
   matrices moved by one import line). Builders now search the whole end-to-end suite for what they changed and run
   the tests of every screen they touched; the orchestrator waits for green CI before spawning a verifier and sends
   red CI back to the builder without counting a FAIL.
+- **Parallel pull requests break on shared anchors and shared files.** On the Rosetta Phase 8 build every card came
+  back red on the matrix guard because test edits moved `path:line` examples that other pull requests also moved,
+  and two cards that both edited one page component without listing it conflicted. Matrix examples name a test
+  file, not a line; cards are planned on the files they will edit, not only their Delivers; after each merge the
+  orchestrator merges `main` into every open branch at once; and when the ruleset does not require up-to-date
+  branches, a clean merge goes in at once with the CI run on `main` as the check. A merge queue does this
+  automatically but needs a repository owned by an organization.
 - **A rule the agents never see is not followed.** The knowledge-graph step was added to the skill's templates but
   not to the agent files of the project already being built; across 55 builder and 41 verifier runs no agent queried
   the graph, and about half of every builder's tool calls were wide searches. When the skill gains an agent rule,

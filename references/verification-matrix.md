@@ -22,7 +22,7 @@ journeys, `p2-matrix.md` with a golden-set section).
 | - | Header table | Card, Date, Commit reviewed (and what later commits changed, if any), Reviewer, Inputs |
 | 1 | Summary | requirements in scope by priority; how many have tests; Musts without evidence; phase cards Done; targets met or not; owner review; pyramid line |
 | 2 | Method | what ran (local or CI run id), the counting rule (section 3), where the counts came from; a later matrix may point to an earlier one instead of repeating this |
-| 3 | Requirement matrix | Id, Requirement, Priority, Tests U / I / E, one example `path:line`, State (`Tests pass`, `Owner check pending`, `Gap: card P<n>-nn`) |
+| 3 | Requirement matrix | Id, Requirement, Priority, Tests U / I / E, one example test file (a file, not `path:line`: a line number moves with every edit and breaks parallel pull requests; the guard checks that a test in the file names the id), State (`Tests pass`, `Owner check pending`, `Gap: card P<n>-nn`) |
 | 4 | Targets | each measured target with its value, the run it came from, and Met / **Not met** with the card that takes it |
 | 5 | Owner review | date, what was reviewed, the DEC rows and cards it produced |
 | 6 | Findings (optional) | F-nn with severity, for a matrix that also reviews (security, journeys) |
