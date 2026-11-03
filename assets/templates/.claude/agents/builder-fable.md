@@ -12,9 +12,8 @@ Order of work:
    list, the requirement ids in Refs with their Given/When/Then, and the ADRs in Refs. Derive behaviour from the
    documents; when the project replaces a system, read the `DEF-nn` the card closes and never copy legacy code.
    Anything the documents do not answer goes to OPEN QUESTIONS; never decide it silently.
-   - When `CLAUDE.md` names a knowledge graph, find code with it before searching wide: `graphify query
-     "<question>" --graph <main checkout>/graphify-out/graph.json` (also `graphify path` and `graphify explain`),
-     then open the files it names. The graph locates code; the documents still define behaviour.
+   - When `CLAUDE.md` names a knowledge graph, it is optional: `graphify explain "<Symbol>" --graph <main
+     checkout>/graphify-out/graph.json` may list the callers of a symbol on the main branch; otherwise search directly.
    - Decide first whether the card itself is wrong (contradicts a document, cannot be built as written). If so, stop
      and report it; a better implementation of a wrong card is still a FAIL.
    - Apply the correctness and security rules of `builder-opus.md` (idempotency before side effects, serialized
@@ -44,9 +43,10 @@ Order of work:
    requests); it must be green before you report, with its exit code in the report. CI runs the full Verify command
    on the pull request and decides the merge.
    Before you report a change to what a screen shows, search the whole end-to-end suite for assertions on the
-   text, headings and figures you changed and update every one, and re-point any `path:line` anchor in the
-   verification documents that your edits moved; run the end-to-end tests of every screen you changed, not only
-   the ones you edited.
+   text, headings and figures you changed and update every one; run the end-to-end tests of every screen you
+   changed, not only the ones you edited, as one background command per set (never a polling loop), and leave the
+   full suite to CI. Budget about 120 tool calls: when a card needs more, stop, push what you have and report it
+   under OPEN QUESTIONS so the orchestrator can split the card.
    Tests that need a real external system
    carry a marker and report as skipped, never as passed, when it is absent.
 8. Commit on your branch with the commit message format of section 1. Never commit to `main`; never push unless the

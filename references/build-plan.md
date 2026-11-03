@@ -74,6 +74,9 @@ Sizes are agent working time, not person days: agents finish a card in minutes t
 | M | about 2 to 3 hours | one vertical slice (domain + persistence + service + page) or one integration adapter with its fake |
 | L | about 4 to 6 hours | a foundation piece many cards build on (authentication, the shell, the aggregate and its state machine) |
 
+- A card a builder takes should be S. On the Rosetta Phase 8 build, M and L UI cards cost $20-50 each and an S card
+  $3, because a builder re-reads its whole history on every tool call. Plan M and L only as parents that the
+  orchestrator splits into S cards before their wave.
 - Nothing larger than L. Split when a card spans two modules, carries two very different difficulty levels (cut the
   hard part out into its own fable card), touches two serialized resources, or has a *Done when* list longer than
   about eight checks.
@@ -383,6 +386,11 @@ requests under a usage throttle):
   we test, then merge"), build the cards on one feature branch, start a preview from it, and merge to `main` only
   after the owner says so. Some owners also set a phase rule "never commit or push unless I ask": keep `main` local
   until asked, then push everything in one go with `handoff.md` updated.
+- **Cost per card (Rosetta Phase 8 wave 1).** Four cards cost about $200 at API prices: builders 80% of the agent
+  cost (170-250 tool calls each, every call re-reading a 200-300k context), verifiers $1-5 a round, and the long
+  orchestrator session about a quarter of the total. Fixes: a fresh orchestrator session per wave, fresh builders
+  for fix rounds, S cards, a tool-call budget, end-to-end tests as one background command, and an optional graph
+  (it helped once in about eight queries on a code-only graph).
 - **Green CI before a verifier.** On the Rosetta Phase 8 build three of four verifier rounds failed only on
   end-to-end specs the builders never ran (assertions on the old wording, `path:line` anchors in verification
   matrices moved by one import line). Builders now search the whole end-to-end suite for what they changed and run

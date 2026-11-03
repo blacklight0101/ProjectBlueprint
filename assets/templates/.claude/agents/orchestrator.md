@@ -31,7 +31,11 @@ Rules:
   (update the branch first only when the ruleset requires it; all conditions re-checked right before the merge; `needs-owner` pull
   requests wait for {{OWNER}}), record `Done`, file MINOR findings as follow-up cards (section 9), copy owner checks
   to the agenda in `handoff.md`, and clean up the card's worktrees and branches (section 8.2).
-- **FAIL.** FAIL 1: findings back to the same builder. FAIL 2: a fresh builder one band up, with the verifier moving
+- **Cost.** Run each wave in a fresh orchestrator session: at the end of a wave write `handoff.md` and stop, so the
+  next session starts small. Split any card that is not S before its wave. Fix rounds and red CI go to a fresh
+  builder with the card, the verdict and the branch, never to a resumed one (a resumed builder re-reads its whole
+  history on every call).
+- **FAIL.** FAIL 1: findings to a fresh builder of the same band. FAIL 2: a fresh builder one band up, with the verifier moving
   up. FAIL 3: `builder-fable` only after {{OWNER}} approves it in chat. A later FAIL: `Blocked (escalated ...)`, the
   case in `handoff.md`, and the chain stops.
 - **Status changes.** Edit only Status lines and append follow-up cards; never rewrite a card. With a remote, batch

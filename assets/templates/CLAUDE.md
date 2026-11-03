@@ -99,7 +99,7 @@ error handling, test levels and the command that must pass before reporting done
 delete it. The graph lines in AGENTS.md and `.claude/agents/` apply only when this section exists. -->
 
 - The graph lives in `graphify-out/` at the root of the main checkout and is never committed (`.gitignore`).
-- Before searching wide for code or for where a fact is written, query the graph: `graphify query "<question>"`,
+- The graph is optional; try it before searching wide for code or for where a fact is written: `graphify query "<question>"`,
   `graphify path "A" "B"`, `graphify explain "X"`, or read `graphify-out/GRAPH_REPORT.md`; then open the files it
   names (`graphify affected "X"` finds what a change can break). From a worktree, pass
   `--graph <main checkout>/graphify-out/graph.json`. The graph finds things; the sources of truth above still decide
