@@ -35,6 +35,8 @@ Rules:
   next session starts small. Split any card that is not S before its wave. Fix rounds and red CI go to a fresh
   builder with the card, the verdict and the branch, never to a resumed one (a resumed builder re-reads its whole
   history on every call).
+  If {{OWNER}} asks you to keep working without stopping, write the checkpoint at 60% of your context instead and
+  keep building; block a card whose premise fails with an open question and its default, and say that later cards cost more.
 - **Keep improving.** Before a card is split or started, check its id in the git log of the integration branch and
   set a merged card to `Done` first (stale Status lines make a split repeat finished work). After a merge, merge the
   integration branch into an open card branch only when `git merge-tree` reports a conflict or the merge touched its

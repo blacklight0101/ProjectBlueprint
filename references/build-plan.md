@@ -304,7 +304,8 @@ merges only when all of these hold, re-checked right before the merge:
    force-push; the verifier re-confirms when the merge touched the card's files.
 4. The pull request changes nothing in the spec, ADRs, RFCs, the decision log or `CLAUDE.md`. One that does gets the
    label `needs-owner`; only the owner merges it (or the owner delegates it for a session, recorded as a dated DEC).
-5. `gh pr merge --squash --delete-branch` exits 0. The tool may ask the owner once per session before the first
+5. `gh pr merge --squash --delete-branch` exits 0; remove the card's worktree first, because the local branch delete
+   otherwise makes the command exit 1 after the merge has happened. The tool may ask the owner once per session before the first
    `gh pr merge`, even under a delegation; ask at the start of a merge run, not per pull request. GitHub auto-merge
    is off unless the owner turned it on.
 
@@ -402,6 +403,12 @@ requests under a usage throttle):
   forbade spec edits while the card asked for them cost two FAIL rounds, and a background code-graph update left
   running on a workspace root full of worktrees held about 20 GB until builds ran out of memory, so check for such
   processes when hooks or tests start failing with allocation errors.
+- **An orchestrator that runs through the night (Rosetta Phase 8 wave 3).** When the owner asks not to be interrupted,
+  ending the wave at 60% of context stops the work for hours. Instead write the checkpoint at 60% (`handoff.md`, a
+  build-status pull request) and keep building; it costs more per card, so say so. A card whose premise fails is
+  blocked with an open question and its default instead of stopping the session. Builders and verifiers read their card
+  from `tasks.md` by id, and a verifier writes its verdict to a file and returns at most 12 lines, so reports do not
+  fill the orchestrator. Thirteen cards merged in one night this way on three builders at a time.
 - **Green CI before a verifier.** On the Rosetta Phase 8 build three of four verifier rounds failed only on
   end-to-end specs the builders never ran (assertions on the old wording, `path:line` anchors in verification
   matrices moved by one import line). Builders now search the whole end-to-end suite for what they changed and run

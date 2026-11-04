@@ -127,7 +127,8 @@ pull request only when all of these hold, re-checked right before the merge:
    card's builder while it still has its context.
 4. The pull request changes nothing under `docs/spec`, `docs/adr`, `docs/rfc`, `docs/decision-log.md` or `CLAUDE.md`.
    One that does is labelled `needs-owner` and only {{OWNER}} merges it, unless a dated DEC delegates it.
-5. `gh pr merge --squash --delete-branch` exits 0. The tool may ask {{OWNER}} once per session before the first merge;
+5. `gh pr merge --squash --delete-branch` exits 0; remove the card's worktree first, because the local branch delete
+   otherwise makes the command exit 1. The tool may ask {{OWNER}} once per session before the first merge;
    ask at the start of a merge run, not per pull request.
 
 Builders never edit `tasks.md` or `handoff.md`. After a run of merges the orchestrator opens one `docs/build-status`
